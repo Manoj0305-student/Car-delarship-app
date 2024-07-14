@@ -26,8 +26,15 @@ public class AppointmentService {
     @Autowired
     EmailService emailService;
 
+    public AppointmentService(AppointmentRepo appointmentRepository, CarRepo carRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.carRepository = carRepository;
+    }
+
     public List<AppointmentDto> getAllAppointments() {
-        return appointmentRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+        return appointmentRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     public AppointmentDto getAppointmentById(int id) {
@@ -40,11 +47,15 @@ public class AppointmentService {
         if (!isValidDlNumber(appointmentDto.getDlNumber())) {
             throw new AppointmentException("Invalid DL Number");
         }
+        if(appointmentRepository.existsByAppointmentDate(appointmentDto.getAppointmentDate())){
+            throw new AppointmentException("Slot is not empty. Car already booked!!");
+        }
         Appointment appointment = convertToEntity(appointmentDto);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         // Send confirmation email
-        emailService.sendEmail(appointmentDto.getEmail(), "Test Drive Confirmation", "An executive will contact you for further details.");
+        emailService.sendEmail(appointmentDto.getEmail(), "Test Drive Confirmation",
+                "An executive will contact you for further details.");
 
         return convertToDto(savedAppointment);
     }
@@ -97,7 +108,7 @@ public class AppointmentService {
         appointmentDto.setAppointmentType(appointment.getAppointmentType());
         appointmentDto.setEmail(appointment.getEmail());
         appointmentDto.setDlNumber(appointment.getDlNumber());
-        appointmentDto.setCarId(appointment.getCar().getId());
+        appointmentDto.setCarId(appointment.getCar().getCarId());
         return appointmentDto;
     }
 

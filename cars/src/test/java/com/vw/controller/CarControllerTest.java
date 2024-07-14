@@ -1,6 +1,7 @@
 package com.vw.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vw.dto.AppointmentDto;
 import com.vw.dto.CarDto;
 import com.vw.dto.ImageDto;
 import com.vw.entities.Car;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,9 +55,11 @@ public class CarControllerTest {
 
     @BeforeEach
     public void setup(){
+        List<AppointmentDto> appointmentDtoList = new ArrayList<>();
+        appointmentDtoList.add(new AppointmentDto(1,"Manoj","9019107853",new Date(2024,07,13,12, 30,00),"test-drive","jane.smith@example.com",1,"KA-0319850034761"));
         carDto = new CarDto(1,"car1","audi",2020,
                 "petrol","hybrid","description",
-                "image.png","");
+                "image.png",appointmentDtoList);
     }
 
     @AfterEach

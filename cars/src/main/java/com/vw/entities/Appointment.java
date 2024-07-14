@@ -1,6 +1,8 @@
 package com.vw.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,19 +23,26 @@ public class Appointment {
     @Column(nullable = false,unique = true)
     private String customerContact;
     @Column(nullable = false)
+    @Email(message = "Enter valid Email address")
     private String email;
-    @Column(nullable = false) //I need to map this
+    @Column(nullable = false)
     private Date appointmentDate;
     @Column()
     private String appointmentType; //test-drive or Buy
     @Column(nullable = false,unique = true)
     private String dlNumber;
 
-
-
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JsonBackReference
+    @JoinColumn(name = "carId")
     private Car car;
 
+    @ManyToOne
+    @JoinColumn(name = "executiveId")
+    private Executive executive;
+
+    @ManyToOne
+    @JoinColumn(name = "customerId")
+    private Customer customer;
 
 }

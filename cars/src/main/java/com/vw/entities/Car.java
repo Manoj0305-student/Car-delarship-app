@@ -2,6 +2,7 @@ package com.vw.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Car {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private int carId;
 	private String name;
 	private String brand;
 	private int model;
@@ -28,7 +29,8 @@ public class Car {
 	@Lob
 	@Column(columnDefinition = "LONGBLOB")
 	private byte[] imgData;
-	
-    @OneToMany(mappedBy = "car_id",cascade = CascadeType.ALL)
+
+	@JsonBackReference
+    @OneToMany(mappedBy = "car",cascade = CascadeType.ALL)
 	private List<Appointment> appointmentList;
 }

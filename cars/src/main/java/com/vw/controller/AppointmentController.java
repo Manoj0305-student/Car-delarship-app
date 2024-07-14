@@ -22,6 +22,10 @@ public class AppointmentController {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public AppointmentController(AppointmentService appointmentService) {
+        this.appointmentService = appointmentService;
+    }
+
     @GetMapping
     public ResponseEntity<List<AppointmentDto>> getAllAppointments() {
         List<AppointmentDto> list = appointmentService.getAllAppointments();

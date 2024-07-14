@@ -3,7 +3,6 @@ package com.vw.service;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.vw.dto.CarDto;
 import com.vw.dto.ImageDto;
@@ -20,11 +19,15 @@ public class CarService {
 	
 	@Autowired 
 	private  CarRepo carRepo;
-	
+
+	public CarService(CarRepo carRepo) {
+		this.carRepo = carRepo;
+	}
+
 	//car to DTO converter
 	public CarDto convertCartoDto(Car car) {
 		CarDto carDto = new CarDto();
-		carDto.setId(car.getId());
+		carDto.setId(car.getCarId());
 		carDto.setName(car.getName());
 		carDto.setBrand(car.getBrand());
 		carDto.setModel(car.getModel());
@@ -32,7 +35,7 @@ public class CarService {
 		carDto.setType(car.getType());
 		carDto.setDescription(car.getDescription());
 		carDto.setImageName(car.getImgName());
-		car.getAppointmentList();
+		carDto.setAppointmentDtoList(car.getAppointmentList());
 		String encodeImage = Base64.getEncoder().withoutPadding().encodeToString(car.getImgData());
 		carDto.setContent(encodeImage);
 		return carDto;
@@ -43,7 +46,10 @@ public class CarService {
 	
 //	 find all cars using dto
 	public  List<CarDto> getAllCars(){
-        return carRepo.findAll().stream().map(this::convertCartoDto).toList();
+        return carRepo.findAll().
+				stream().
+				map(this::convertCartoDto)
+				.toList();
 	}
 
 
@@ -92,6 +98,7 @@ public class CarService {
 		carObj.setImgName(carDto.getImageName());
 		carObj.setContentType(file.getContentType());
 		carObj.setImgData(file.getBytes());
+
 		return this.carRepo.save(carObj);
 	}
 	
@@ -118,11 +125,9 @@ public class CarService {
 		carObj.setImgName(carDto.getImageName());
 		carObj.setContentType(file.getContentType());
 		carObj.setImgData(file.getBytes());
+		carObj.setAppointmentList(carDto.getAppointmentDtoList());
 		carRepo.save(carObj);
 		return carObj;
-		
 	}
-			
-
 }
 

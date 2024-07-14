@@ -1,10 +1,14 @@
 package com.vw.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AppointmentDto {
     private int id;
     private String customerName;
@@ -14,4 +18,6 @@ public class AppointmentDto {
     private String email;
     private int carId;
     private String dlNumber;
+
+
 }
