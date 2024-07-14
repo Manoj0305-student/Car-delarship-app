@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AppointmentException.class)
-    public ResponseEntity<ErrorResponse> AppointmentException(AppointmentException e) {
+    public ResponseEntity<ErrorResponse> AppointmentExceptionHandler(AppointmentException e) {
         ErrorResponse err = new ErrorResponse(e.getMessage());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
     }
@@ -47,5 +47,17 @@ public class GlobalExceptionHandler {
 // 2. change data-type of model (int->String)
 // 3. email if it exists then he should get email already exists
 // 4. null pointer exception.
+
+    @ExceptionHandler(ExecutiveException.class)
+    public ResponseEntity<ErrorResponse> ExecutiveExceptionHandler(ExecutiveException e) {
+        ErrorResponse err = new ErrorResponse(e.getMessage());
+        return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CustomerException.class)
+    public ResponseEntity<ErrorResponse> CustomerExceptionHandler(CustomerException e) {
+        ErrorResponse err = new ErrorResponse(e.getMessage());
+        return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+    }
 
 }

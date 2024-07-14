@@ -55,11 +55,11 @@ public class CarControllerTest {
 
     @BeforeEach
     public void setup(){
-        List<AppointmentDto> appointmentDtoList = new ArrayList<>();
-        appointmentDtoList.add(new AppointmentDto(1,"Manoj","9019107853",new Date(2024,07,13,12, 30,00),"test-drive","jane.smith@example.com",1,"KA-0319850034761"));
+//        List<AppointmentDto> appointmentDtoList = new ArrayList<>();
+//        appointmentDtoList.add(new AppointmentDto(1,"Manoj","9019107853",new Date(2024,07,13,12, 30,00),"test-drive","jane.smith@example.com",1,"KA-0319850034761"));
         carDto = new CarDto(1,"car1","audi",2020,
                 "petrol","hybrid","description",
-                "image.png",appointmentDtoList);
+                "image.png");
     }
 
     @AfterEach

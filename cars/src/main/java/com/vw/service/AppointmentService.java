@@ -1,22 +1,33 @@
 package com.vw.service;
 
-import com.vw.dao.AppointmentRepo;
-import com.vw.dao.CarRepo;
+import com.vw.repo.AppointmentRepo;
+import com.vw.repo.CarRepo;
+import com.vw.repo.CustomerRepo;
+import com.vw.repo.ExecutiveRepo;
 import com.vw.dto.AppointmentDto;
 import com.vw.entities.Appointment;
 import com.vw.entities.Car;
+import com.vw.entities.Customer;
+import com.vw.entities.Executive;
 import com.vw.exceptions.AppointmentException;
+import com.vw.exceptions.CustomerException;
+import com.vw.exceptions.ExecutiveException;
 import com.vw.exceptions.IdNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
+
     @Autowired
     private AppointmentRepo appointmentRepository;
 
@@ -24,107 +35,269 @@ public class AppointmentService {
     private CarRepo carRepository;
 
     @Autowired
-    EmailService emailService;
+    private ExecutiveRepo executiveRepository;
 
-    public AppointmentService(AppointmentRepo appointmentRepository, CarRepo carRepository) {
+    @Autowired
+    private CustomerRepo customerRepository;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    @Autowired
+    private EmailService emailService;
+
+    public AppointmentService(AppointmentRepo appointmentRepository, CarRepo carRepository, ExecutiveRepo executiveRepository, CustomerRepo customerRepository) {
         this.appointmentRepository = appointmentRepository;
         this.carRepository = carRepository;
+        this.executiveRepository = executiveRepository;
+        this.customerRepository = customerRepository;
     }
 
+    private AppointmentDto convertToDto(Appointment appointment) {
+        AppointmentDto appointmentDto = new AppointmentDto();
+        appointmentDto.setAppointmentId(appointment.getAppointmentId());
+        appointmentDto.setCarId(appointment.getCar().getCarId());
+        appointmentDto.setExecutiveId(appointment.getExecutive().getExecutiveId());
+        appointmentDto.setCustomerId(appointment.getCustomer().getCustomerId());
+        appointmentDto.setAppointmentDate(appointment.getAppointmentDate());
+        appointmentDto.setAppointmentType(appointment.getAppointmentType());
+        appointmentDto.setApproved(appointment.isApproved());
+        return appointmentDto;
+    }
+
+    private Appointment convertToEntity(AppointmentDto appointmentDto) {
+        Appointment appointment = new Appointment();
+        appointment.setAppointmentId(appointmentDto.getAppointmentId());
+        appointment.setCar(carRepository.findById(appointmentDto.getCarId())
+                .orElseThrow(() -> new IdNotFoundException("Car not found with id: " + appointmentDto.getCarId())));
+
+        appointment.setExecutive(executiveRepository.findById(appointmentDto.getExecutiveId())
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + appointmentDto.getExecutiveId())));
+
+        appointment.setCustomer(customerRepository.findById(appointmentDto.getCustomerId())
+                .orElseThrow(() -> new CustomerException("Customer not found with id: " + appointmentDto.getCustomerId())));
+
+        appointment.setAppointmentDate(appointmentDto.getAppointmentDate());
+        appointment.setAppointmentType(appointmentDto.getAppointmentType());
+        appointment.setApproved(false);
+        return appointment;
+    }
+
+    private void validateAppointment(Appointment appointment) {
+        // Validate car
+        Optional<Car> carOptional = carRepository.findById(appointment.getCar().getCarId());
+        if (carOptional.isEmpty()) {
+            throw new IdNotFoundException("Invalid car id: " + appointment.getCar().getCarId());
+        }
+
+        // Validate executive
+        Optional<Executive> executiveOptional = executiveRepository.findById(appointment.getExecutive().getExecutiveId());
+        if (executiveOptional.isEmpty()) {
+            throw new ExecutiveException("Invalid executive id: " + appointment.getExecutive().getExecutiveId());
+        }
+
+        // Validate customer
+        Optional<Customer> customerOptional = customerRepository.findById(appointment.getCustomer().getCustomerId());
+        if (customerOptional.isEmpty()) {
+            throw new CustomerException("Invalid customer id: " + appointment.getCustomer().getCustomerId());
+        }
+
+        // Ensure the car is available for the appointment date
+        boolean isCarAvailable = appointmentRepository.findByCarAndAppointmentDate(appointment.getCar(), appointment.getAppointmentDate())
+                .isEmpty();
+        if (!isCarAvailable) {
+            throw new AppointmentException("The car is not available for the selected date.");
+        }
+
+    }
+
+    private boolean isValidDlNumber(String dlNumber) {
+        String regex = "^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$";
+        return Pattern.matches(regex, dlNumber);
+    }
+
+    private void sendTestDriveConfirmationEmail(Appointment appointment) {
+        String carInfo = "Car Brand: " + appointment.getCar().getBrand() +
+                "\nCar Model: " + appointment.getCar().getModel() +
+                "\nAppointment Date: " + appointment.getAppointmentDate();
+        emailService.sendEmail(appointment.getCustomer().getEmail(),
+                "Test Drive Confirmation",
+                "An executive will contact you for further details.\n\n" + carInfo);
+    }
+
+    private void sendApprovalRequestToExecutive(Appointment appointment) {
+        // Fetch executive's email
+        String executiveEmail = appointment.getExecutive().getEmail();
+
+        // Prepare email content
+        String subject = "Approval Required: New Appointment";
+        String message = String.format("Dear %s, \n\nAn appointment has been created and is pending your approval.\n\nAppointment Details:\n- Customer: %s\n- Car: %s\n- Date: %s\n\nPlease log in to the dashboard to approve or reject the request.\n\nBest Regards,\nCar Dealership",
+                appointment.getExecutive().getName(),
+                appointment.getCustomer().getName(),
+                appointment.getCar().getName(),
+                appointment.getAppointmentDate().toString());
+
+        // Send email (assuming you have an emailService)
+        emailService.sendEmail(executiveEmail, subject, message);
+    }
+
+    private void notifyExecutiveForApproval(Appointment appointment) {
+        String message = String.format("Appointment ID %d has been updated and requires your approval.", appointment.getAppointmentId());
+        sendEmail(appointment.getExecutive().getEmail(), "Appointment Update Approval Required", message);
+    }
+
+    public void sendEmail(String to, String subject, String body) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
+
+            javaMailSender.send(message);
+            System.out.println("Email sent successfully to " + to);
+        } catch (MailException e) {
+            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
+        }
+    }
+
+    private void sendCarPurchaseConfirmationEmail(Customer customer, Car car) {
+        String subject = "Congratulations on your new car purchase!";
+        String body = String.format("Dear %s,\n\nCongratulations on purchasing your new car!\n\nCar Details:\nModel: %s\nPrice: $%.2f\n\nThank you for your business.\n\nBest regards,\nCar Dealership Team",
+                customer.getName(), car.getModel(), car.getPrice());
+        emailService.sendEmail(customer.getEmail(), subject, body);
+    }
+
+    private void sendConfirmationEmail(Appointment appointment) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(appointment.getCustomer().getEmail());
+            message.setSubject("Appointment Confirmation");
+            message.setText("Dear " + appointment.getCustomer().getName() + ",\n\n"
+                    + "Your appointment for " + appointment.getCar().getCarId() + " " + appointment.getCar().getModel()
+                    + " has been confirmed.\n\n"
+                    + "Appointment Details:\n"
+                    + "Date: " + appointment.getAppointmentDate() + "\n"
+                    + "Type: " + appointment.getAppointmentType() + "\n\n"
+                    + "Thank you for choosing us!");
+
+            // Send email
+            javaMailSender.send(message);
+        } catch (MailException e) {
+            // Handle exception
+            System.err.println("Failed to send email: " + e.getMessage());
+        }
+    }
+
+
     public List<AppointmentDto> getAllAppointments() {
-        return appointmentRepository.findAll().stream()
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return appointments.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     public AppointmentDto getAppointmentById(int id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new IdNotFoundException(id + " not found!"));
+                .orElseThrow(() -> new AppointmentException("Appointment not found with id: " + id));
         return convertToDto(appointment);
     }
 
+    public List<AppointmentDto> getAppointmentsByExecutive(int executiveId) {
+        Executive executive = executiveRepository.findById(executiveId)
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + executiveId));
+        List<Appointment> appointments = appointmentRepository.findByExecutive(executive);
+        return appointments.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public AppointmentDto createAppointment(AppointmentDto appointmentDto) {
-        if (!isValidDlNumber(appointmentDto.getDlNumber())) {
-            throw new AppointmentException("Invalid DL Number");
-        }
-        if(appointmentRepository.existsByAppointmentDate(appointmentDto.getAppointmentDate())){
-            throw new AppointmentException("Slot is not empty. Car already booked!!");
-        }
         Appointment appointment = convertToEntity(appointmentDto);
+        validateAppointment(appointment);
+        appointment.setApproved(false);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-
-        // Send confirmation email
-        emailService.sendEmail(appointmentDto.getEmail(), "Test Drive Confirmation",
-                "An executive will contact you for further details.");
-
+        sendApprovalRequestToExecutive(savedAppointment);
         return convertToDto(savedAppointment);
     }
 
-    private boolean isCarAvailable(Car car, Date appointmentDate) {
-        List<Appointment> appointments = appointmentRepository.findAll();
-        for (Appointment appoint:appointments) {
-            if(appoint.getCar().equals(car) && appoint.getAppointmentDate().equals(appointmentDate))
-                return false;
+
+    public AppointmentDto createTestDriveAppointment(AppointmentDto appointmentDto) {
+        if (!isValidDlNumber(appointmentDto.getCustomer().getDlNumber())) {
+            throw new AppointmentException("Invalid DL Number");
         }
-        return true;
+        Appointment appointment = convertToEntity(appointmentDto);
+        validateAppointment(appointment);
+        appointment.setApproved(false);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        sendTestDriveConfirmationEmail(savedAppointment);
+        return convertToDto(savedAppointment);
     }
 
-    private boolean isValidDlNumber(String dlNumber) {
-        String regex = "^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$";
-        return Pattern.matches(regex,dlNumber);
+    public AppointmentDto updateAppointment(int id, AppointmentDto appointmentDto) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppointmentException("Appointment not found with id: " + id));
+        Car car = carRepository.findById(appointmentDto.getCarId())
+                .orElseThrow(() -> new IdNotFoundException("Car not found with id: " + appointmentDto.getCarId()));
+        appointment.setCar(car);
+        Executive executive = executiveRepository.findById(appointmentDto.getExecutiveId())
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + appointmentDto.getExecutiveId()));
+        appointment.setExecutive(executive);
+        Customer customer = customerRepository.findById(appointmentDto.getCustomerId())
+                .orElseThrow(() -> new CustomerException("Customer not found with id: " + appointmentDto.getCustomerId()));
+        appointment.setCustomer(customer);
+        appointment.setAppointmentDate(appointmentDto.getAppointmentDate());
+        appointment.setAppointmentType(appointmentDto.getAppointmentType());
+        appointment.setApproved(false);
+
+        Appointment updatedAppointment = appointmentRepository.save(appointment);
+
+        // Notify executive about the update and pending approval
+        notifyExecutiveForApproval(updatedAppointment);
+
+        return convertToDto(updatedAppointment);
     }
 
     public void deleteAppointment(int id) {
         if (appointmentRepository.existsById(id)) {
             appointmentRepository.deleteById(id);
-        } else {
-            throw new IdNotFoundException(id + " not found for delete operation!");
         }
+        else {
+            throw new AppointmentException("Appointment not Found by Id: "+id);
+        }
+
     }
 
-    public AppointmentDto updateAppointment(int id, AppointmentDto appointmentDetails) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new IdNotFoundException(id + " not found!"));
+    public void buyACar(int appointmentId){
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(()->new AppointmentException("Appointment not found with id: " + appointmentId));
+        Car car = appointment.getCar();
+        Customer customer = appointment.getCustomer();
+        carRepository.save(car);
 
-        appointment.setCustomerName(appointmentDetails.getCustomerName());
-        appointment.setCustomerContact(appointmentDetails.getCustomerContact());
-        appointment.setAppointmentDate(appointmentDetails.getAppointmentDate());
-        appointment.setAppointmentType(appointmentDetails.getAppointmentType());
-
-        Car car = carRepository.findById( appointmentDetails.getCarId())
-                .orElseThrow(() -> new IdNotFoundException("Car not found!"));
-        appointment.setCar(car);
-
-        Appointment updatedAppointment = appointmentRepository.save(appointment);
-        return convertToDto(updatedAppointment);
+        // Send confirmation email
+        sendCarPurchaseConfirmationEmail(customer, car);
     }
 
-    private AppointmentDto convertToDto(Appointment appointment) {
-        AppointmentDto appointmentDto = new AppointmentDto();
-        appointmentDto.setId(appointment.getAppointmentId());
-        appointmentDto.setCustomerName(appointment.getCustomerName());
-        appointmentDto.setCustomerContact(appointment.getCustomerContact());
-        appointmentDto.setAppointmentDate(appointment.getAppointmentDate());
-        appointmentDto.setAppointmentType(appointment.getAppointmentType());
-        appointmentDto.setEmail(appointment.getEmail());
-        appointmentDto.setDlNumber(appointment.getDlNumber());
-        appointmentDto.setCarId(appointment.getCar().getCarId());
-        return appointmentDto;
+    public AppointmentDto bookAppointmentWithDirectExecutive(AppointmentDto appointmentDto) {
+        // Validate and set the executive
+        Executive executive = executiveRepository.findById(appointmentDto.getExecutiveId())
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + appointmentDto.getExecutiveId()));
+
+        Appointment appointment = convertToEntity(appointmentDto);
+        appointment.setExecutive(executive);
+
+        validateAppointment(appointment);
+
+        // Save the appointment as pending approval
+        appointment.setApproved(false);
+
+        // Save the appointment in the repository
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Send confirmation email to customer
+        sendConfirmationEmail(savedAppointment);
+
+        return convertToDto(savedAppointment);
     }
 
-    private Appointment convertToEntity(AppointmentDto appointmentDto) {
-        Appointment appointment = new Appointment();
-        appointment.setCustomerName(appointmentDto.getCustomerName());
-        appointment.setCustomerContact(appointmentDto.getCustomerContact());
-        appointment.setAppointmentDate(appointmentDto.getAppointmentDate());
-        appointment.setAppointmentType(appointmentDto.getAppointmentType());
-        appointment.setDlNumber(appointmentDto.getDlNumber());
-        appointment.setEmail(appointmentDto.getEmail());
-
-        Car car = carRepository.findById(appointmentDto.getCarId())
-                .orElseThrow(() -> new IdNotFoundException("Car not found!"));
-        appointment.setCar(car);
-
-        return appointment;
-    }
 }

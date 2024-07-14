@@ -21,6 +21,7 @@ public class CarDto {
 	private String description;
 	private String imageName;
 	private String content;
+	private double price;
 	private List<Appointment> appointmentDtoList;
 
 	public CarDto(int i, String car1, String audi, int i1, String petrol, String hybrid, String description, String image, List<AppointmentDto> appointmentDtoList) {

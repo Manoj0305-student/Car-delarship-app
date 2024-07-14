@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.vw.dao.CarRepo;
+import com.vw.repo.CarRepo;
 
 @Service
 public class CarService {
@@ -36,6 +36,7 @@ public class CarService {
 		carDto.setDescription(car.getDescription());
 		carDto.setImageName(car.getImgName());
 		carDto.setAppointmentDtoList(car.getAppointmentList());
+		carDto.setPrice(car.getPrice());
 		String encodeImage = Base64.getEncoder().withoutPadding().encodeToString(car.getImgData());
 		carDto.setContent(encodeImage);
 		return carDto;
@@ -97,6 +98,7 @@ public class CarService {
 		carObj.setDescription(carDto.getDescription());
 		carObj.setImgName(carDto.getImageName());
 		carObj.setContentType(file.getContentType());
+		carObj.setPrice(carDto.getPrice());
 		carObj.setImgData(file.getBytes());
 
 		return this.carRepo.save(carObj);
@@ -126,6 +128,7 @@ public class CarService {
 		carObj.setContentType(file.getContentType());
 		carObj.setImgData(file.getBytes());
 		carObj.setAppointmentList(carDto.getAppointmentDtoList());
+		carObj.setPrice(carDto.getPrice());
 		carRepo.save(carObj);
 		return carObj;
 	}

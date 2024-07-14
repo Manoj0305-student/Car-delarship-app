@@ -1,4 +1,4 @@
-package com.vw.dao;
+package com.vw.repo;
 
 import java.util.List;
 

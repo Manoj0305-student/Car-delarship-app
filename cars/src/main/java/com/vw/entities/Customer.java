@@ -2,6 +2,7 @@ package com.vw.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -13,14 +14,23 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-    private Long customerId;
+    private int customerId;
     private String name;
+
+    @Email(message = "Enter valid email!")
     private String email;
     private String phone;
+
+    private String dlNumber;
 
     @OneToMany(mappedBy = "customer")
     @JsonManagedReference
     private List<Appointment> appointments = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "executive_id")
+    private Executive executive;
+
 
 
 }

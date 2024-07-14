@@ -1,7 +1,7 @@
 package com.vw.service;
 
 
-import com.vw.dao.CarRepo;
+import com.vw.repo.CarRepo;
 import com.vw.dto.CarDto;
 import com.vw.dto.ImageDto;
 import com.vw.entities.Appointment;

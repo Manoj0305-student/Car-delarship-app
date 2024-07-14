@@ -25,6 +25,7 @@ public class Car {
 	private String description;
 	private String imgName;
 	private String contentType;
+	private double price;
 	
 	@Lob
 	@Column(columnDefinition = "LONGBLOB")
