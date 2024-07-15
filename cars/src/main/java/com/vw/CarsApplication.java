@@ -17,5 +17,4 @@ public class CarsApplication {
 		SpringApplication.run(CarsApplication.class, args);
 		
 	}
-
 }

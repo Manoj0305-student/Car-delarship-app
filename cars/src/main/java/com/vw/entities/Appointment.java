@@ -23,16 +23,18 @@ public class Appointment {
     private boolean approved = false;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference(value ="carAppointments")
     @JoinColumn(name = "carId")
     private Car car;
 
     @ManyToOne
     @JoinColumn(name = "executiveId")
+    @JsonBackReference(value = "executiveAppointments")
     private Executive executive;
 
     @ManyToOne
     @JoinColumn(name = "customerId")
+    @JsonBackReference(value ="customerAppointments")
     private Customer customer;
 
 }

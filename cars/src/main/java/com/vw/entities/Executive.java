@@ -1,5 +1,6 @@
 package com.vw.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -21,10 +22,10 @@ public class Executive {
     private String email;
 
     @OneToMany(mappedBy = "executive")
-    @JsonManagedReference
+    @JsonManagedReference(value = "executiveAppointments")
     private List<Appointment> appointments = new ArrayList<>();
 
     @OneToMany(mappedBy = "executive")
-    @JsonManagedReference
+    @JsonManagedReference(value ="executiveCustomers")
     private List<Customer> customers = new ArrayList<>();
 }

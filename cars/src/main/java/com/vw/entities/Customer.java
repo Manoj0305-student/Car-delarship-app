@@ -1,5 +1,7 @@
 package com.vw.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -24,10 +26,15 @@ public class Customer {
     private String dlNumber;
 
     @OneToMany(mappedBy = "customer")
-    @JsonManagedReference
+    @JsonManagedReference(value ="customerAppointments")
     private List<Appointment> appointments = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "executive_id")
+    @JoinColumn(name = "executiveId")
+    @JsonBackReference(value ="executiveCustomers")
     private Executive executive;
+
+//    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+//    @JsonIgnore
+//    private List<Car> cars;
 }

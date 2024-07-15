@@ -1,5 +1,6 @@
 package com.vw.dto;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import java.util.List;
@@ -13,5 +14,6 @@ public class CustomerDto {
     private String phone;
     private String dlNumber;
     private int executiveId;
-
+    private List<AppointmentDto> appointments;
+    private ExecutiveDto executive;
 }

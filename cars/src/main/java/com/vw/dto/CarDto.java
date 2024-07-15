@@ -1,5 +1,6 @@
 package com.vw.dto;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vw.entities.Appointment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +24,5 @@ public class CarDto {
 	private String content;
 	private double price;
 	private List<Appointment> appointmentDtoList;
-
-	public CarDto(int i, String car1, String audi, int i1, String petrol, String hybrid, String description, String image, List<AppointmentDto> appointmentDtoList) {
-	}
+	private CustomerDto customer;
 }

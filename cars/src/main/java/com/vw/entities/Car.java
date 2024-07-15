@@ -3,6 +3,7 @@ package com.vw.entities;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,7 +32,11 @@ public class Car {
 	@Column(columnDefinition = "LONGBLOB")
 	private byte[] imgData;
 
-	@JsonBackReference
+	@JsonManagedReference(value ="carAppointments")
     @OneToMany(mappedBy = "car",cascade = CascadeType.ALL)
 	private List<Appointment> appointmentList;
+
+//	@ManyToOne
+//	@JoinColumn(name = "customer_id")
+//	private Customer customer;
 }
