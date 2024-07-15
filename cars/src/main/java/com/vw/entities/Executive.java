@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -16,9 +17,12 @@ public class Executive {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "executive_id")
     private int executiveId;
+
+    @NotBlank(message = "Name is required")
     private String name;
 
     @Email(message = "Enter a Valid email!")
+    @Column(unique = true)
     private String email;
 
     @OneToMany(mappedBy = "executive")

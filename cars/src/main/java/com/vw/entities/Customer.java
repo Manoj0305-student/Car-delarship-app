@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -19,10 +21,15 @@ public class Customer {
     private int customerId;
     private String name;
 
-    @Email(message = "Enter valid email!")
+    @Email(message = "Enter valid email!",regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~\\.-]+@[a-zA-Z0-9.-]+$")
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
+    @Pattern(regexp = "^\\d{2}-\\d{10}$")
     private String phone;
 
+    @NotEmpty
+    @Column(unique = true)
     private String dlNumber;
 
     @OneToMany(mappedBy = "customer")

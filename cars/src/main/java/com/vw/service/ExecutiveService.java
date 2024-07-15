@@ -1,6 +1,7 @@
 package com.vw.service;
 
 import com.vw.dto.CustomerDto;
+import com.vw.dto.ExecutiveDto;
 import com.vw.entities.Customer;
 import com.vw.entities.Executive;
 import com.vw.exceptions.CustomerException;
@@ -27,7 +28,7 @@ public class ExecutiveService {
         this.customerRepository = customerRepository;
     }
 
-    private CustomerDto convertToDto(Customer customer) {
+    private CustomerDto convertToCustomerDto(Customer customer) {
         CustomerDto customerDto = new CustomerDto();
         customerDto.setCustomerId(customer.getCustomerId());
         customerDto.setName(customer.getName());
@@ -38,7 +39,23 @@ public class ExecutiveService {
         return customerDto;
     }
 
-    private Customer convertToEntity(CustomerDto customerDto) {
+    private ExecutiveDto convertToExecutiveDto(Executive executive) {
+        ExecutiveDto executiveDto = new ExecutiveDto();
+        executiveDto.setExecutiveId(executive.getExecutiveId());
+        executiveDto.setName(executive.getName());
+        executiveDto.setEmail(executive.getEmail());
+        return executiveDto;
+    }
+
+    private Executive convertToExecutiveEntity(ExecutiveDto executiveDto) {
+        Executive executive = new Executive();
+        executive.setExecutiveId(executiveDto.getExecutiveId());
+        executive.setName(executiveDto.getName());
+        executive.setEmail(executiveDto.getEmail());
+        return executive;
+    }
+
+    private Customer convertToCustomerEntity(CustomerDto customerDto) {
         Customer customer = new Customer();
         customer.setCustomerId(customerDto.getCustomerId());
         customer.setName(customerDto.getName());
@@ -51,10 +68,49 @@ public class ExecutiveService {
         return customer;
     }
 
+    public ExecutiveDto createExecutive(ExecutiveDto executiveDto) {
+        Executive executive = convertToExecutiveEntity(executiveDto);
+        if(executiveRepository.existsById(executive.getExecutiveId()) && executiveRepository.existsByEmail(executive.getEmail())){
+            throw new ExecutiveException("Executive Resources already found with this Id: "+getExecutiveById(executive.getExecutiveId()));
+        }
+        Executive savedExecutive = executiveRepository.save(executive);
+        return convertToExecutiveDto(savedExecutive);
+    }
+
+    public ExecutiveDto updateExecutive(int id, ExecutiveDto executiveDto) {
+        Executive existingExecutive = executiveRepository.findById(id)
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + id));
+
+        existingExecutive.setName(executiveDto.getName());
+        existingExecutive.setEmail(executiveDto.getEmail());
+
+        Executive updatedExecutive = executiveRepository.save(existingExecutive);
+        return convertToExecutiveDto(updatedExecutive);
+    }
+
+    public ExecutiveDto getExecutiveById(int id) {
+        Executive executive = executiveRepository.findById(id)
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + id));
+        return convertToExecutiveDto(executive);
+    }
+
+    public List<ExecutiveDto> getAllExecutives() {
+        List<Executive> executives = executiveRepository.findAll();
+        return executives.stream()
+                .map(this::convertToExecutiveDto)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteExecutive(int id) {
+        Executive executive = executiveRepository.findById(id)
+                .orElseThrow(() -> new ExecutiveException("Executive not found with id: " + id));
+        executiveRepository.delete(executive);
+    }
+
     public CustomerDto createCustomer(CustomerDto customerDto) {
-        Customer customer = convertToEntity(customerDto);
+        Customer customer = convertToCustomerEntity(customerDto);
         Customer savedCustomer = customerRepository.save(customer);
-        return convertToDto(savedCustomer);
+        return convertToCustomerDto(savedCustomer);
     }
     public CustomerDto updateCustomer(int id, CustomerDto customerDto) {
         Customer existingCustomer = customerRepository.findById(id)
@@ -70,7 +126,7 @@ public class ExecutiveService {
         existingCustomer.setExecutive(executive);
 
         Customer updatedCustomer = customerRepository.save(existingCustomer);
-        return convertToDto(updatedCustomer);
+        return convertToCustomerDto(updatedCustomer);
     }
 
     //Method to assign a customer to an executive
@@ -92,20 +148,20 @@ public class ExecutiveService {
 
         List<Customer> customers = customerRepository.findByExecutive(executive);
         return customers.stream()
-                .map(this::convertToDto)
+                .map(this::convertToCustomerDto)
                 .collect(Collectors.toList());
     }
 
     public CustomerDto getCustomerById(int id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerException("Customer not found with id: " + id));
-        return convertToDto(customer);
+        return convertToCustomerDto(customer);
     }
 
     public List<CustomerDto> getAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
-                .map(this::convertToDto)
+                .map(this::convertToCustomerDto)
                 .collect(Collectors.toList());
     }
 

@@ -4,4 +4,5 @@ import com.vw.entities.Executive;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExecutiveRepo extends JpaRepository<Executive,Integer> {
+    boolean existsByEmail(String email);
 }

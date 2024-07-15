@@ -42,8 +42,6 @@ public class CarController {
 			throw new ListOfCarIsEmptyException("No Data Found!!");
 		}
 		return ResponseEntity.ok(list);
-
-
     }
 
 	//get cars by id

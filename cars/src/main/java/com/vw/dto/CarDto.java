@@ -20,9 +20,7 @@ public class CarDto {
 	private String fuel;
 	private String type;
 	private String description;
-	private String imageName;
 	private String content;
 	private double price;
 	private List<Appointment> appointmentDtoList;
-	private CustomerDto customer;
 }

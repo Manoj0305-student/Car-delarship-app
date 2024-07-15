@@ -14,6 +14,5 @@ public class CustomerDto {
     private String phone;
     private String dlNumber;
     private int executiveId;
-    private List<AppointmentDto> appointments;
-    private ExecutiveDto executive;
+
 }

@@ -34,7 +34,6 @@ public class CarService {
 		carDto.setFuel(car.getFuel());
 		carDto.setType(car.getType());
 		carDto.setDescription(car.getDescription());
-		carDto.setImageName(car.getImgName());
 		carDto.setAppointmentDtoList(car.getAppointmentList());
 		carDto.setPrice(car.getPrice());
 		String encodeImage = Base64.getEncoder().withoutPadding().encodeToString(car.getImgData());
@@ -96,7 +95,7 @@ public class CarService {
 		carObj.setFuel(carDto.getFuel());
 		carObj.setType(carDto.getType());
 		carObj.setDescription(carDto.getDescription());
-		carObj.setImgName(carDto.getImageName());
+		carObj.setImgName(file.getOriginalFilename());
 		carObj.setContentType(file.getContentType());
 		carObj.setPrice(carDto.getPrice());
 		carObj.setImgData(file.getBytes());
@@ -124,7 +123,7 @@ public class CarService {
 		carObj.setFuel(carDto.getFuel());
 		carObj.setType(carDto.getType());
 		carObj.setDescription(carDto.getDescription());
-		carObj.setImgName(carDto.getImageName());
+		carObj.setImgName(file.getOriginalFilename());
 		carObj.setContentType(file.getContentType());
 		carObj.setImgData(file.getBytes());
 		carObj.setAppointmentList(carDto.getAppointmentDtoList());

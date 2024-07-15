@@ -1,6 +1,14 @@
 package com.vw.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.http.HttpStatus;
+
+@Setter
+@Getter
 public class ErrorResponse {
+
+    private int status;
     private String message;
 
     public ErrorResponse() {
@@ -10,12 +18,9 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
+    public ErrorResponse(HttpStatus status, String message) {
+        this.status = status.value();
+        this.message=message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
 }
