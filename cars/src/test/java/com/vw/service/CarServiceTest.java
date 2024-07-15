@@ -38,7 +38,7 @@ public class CarServiceTest {
         List<Appointment> appointmentList = new ArrayList<>();
         car = new Car(1, "car1", "audi",
                 2020, "petrol", "hybrid", "some text",
-                "car1.png", "image/png", new byte[]{}, appointmentList);
+                "car1.png", "image/png", 0.0,new byte[]{}, appointmentList);
     }
 
     @Test

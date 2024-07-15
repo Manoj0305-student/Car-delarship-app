@@ -1,5 +1,6 @@
 package com.vw.dto;
 
+import com.vw.entities.Customer;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,6 +15,5 @@ public class AppointmentDto {
     private int executiveId;
     private int customerId;
     private boolean approved;
-    private CustomerDto customer;
-
+    private Customer customer;
 }

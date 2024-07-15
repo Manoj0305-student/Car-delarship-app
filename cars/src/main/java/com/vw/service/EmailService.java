@@ -5,9 +5,11 @@ import org.springframework.mail.javamail.JavaMailSender;import org.springframewo
 public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
+
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
+
     public void sendEmail(String to, String subject, String text){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(to);

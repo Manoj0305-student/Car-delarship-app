@@ -30,7 +30,4 @@ public class Customer {
     @ManyToOne
     @JoinColumn(name = "executive_id")
     private Executive executive;
-
-
-
 }
