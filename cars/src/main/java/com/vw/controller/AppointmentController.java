@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/appointments")
@@ -40,9 +42,11 @@ public class AppointmentController {
 
     // Delete an appointment
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAppointment(@PathVariable int id) {
+    public ResponseEntity<Map<String,String>> deleteAppointment(@PathVariable int id) {
         appointmentService.deleteAppointment(id);
-        return ResponseEntity.ok().build();
+        Map<String, String> jsonMap = new HashMap<>();
+        jsonMap.put("message", "Executive is Deleted with id: "+id);
+        return ResponseEntity.ok(jsonMap);
     }
 
     // Get all appointments
@@ -78,8 +82,10 @@ public class AppointmentController {
 
     // Buy a car
     @PostMapping("/buy-car/{appointmentId}")
-    public ResponseEntity<Void> buyACar(@PathVariable int appointmentId) {
+    public ResponseEntity<Map<String,String>> buyACar(@PathVariable int appointmentId) {
         appointmentService.buyACar(appointmentId);
-        return ResponseEntity.ok().build();
+        Map<String, String> jsonMap = new HashMap<>();
+        jsonMap.put("message", "Dear Customer you SuccessFully Brought A car "+appointmentId);
+        return ResponseEntity.ok(jsonMap);
     }
 }

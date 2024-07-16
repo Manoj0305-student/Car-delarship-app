@@ -24,18 +24,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IdNotFoundException.class)
     public ResponseEntity<ErrorResponse> IdNotFoundExceptionHandler(IdNotFoundException e) {
         ErrorResponse err = new ErrorResponse(e.getMessage());
+        err.setMessage(e.getMessage());
+        err.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ListOfCarIsEmptyException.class)
     public ResponseEntity<ErrorResponse> ListOfCarIsEmptyException(ListOfCarIsEmptyException e) {
         ErrorResponse err = new ErrorResponse(e.getMessage());
+        err.setMessage(e.getMessage());
+        err.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AppointmentException.class)
     public ResponseEntity<ErrorResponse> AppointmentExceptionHandler(AppointmentException e) {
         ErrorResponse err = new ErrorResponse(e.getMessage());
+        err.setMessage(e.getMessage());
+        err.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
     }
 
@@ -55,12 +61,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExecutiveException.class)
     public ResponseEntity<ErrorResponse> ExecutiveExceptionHandler(ExecutiveException e) {
         ErrorResponse err = new ErrorResponse(e.getMessage());
+        err.setMessage(e.getMessage());
+        err.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CustomerException.class)
     public ResponseEntity<ErrorResponse> CustomerExceptionHandler(CustomerException e) {
         ErrorResponse err = new ErrorResponse(e.getMessage());
+        err.setMessage(e.getMessage());
+        err.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
     }
 

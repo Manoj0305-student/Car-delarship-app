@@ -188,6 +188,18 @@ public class AppointmentService {
         }
     }
 
+    private void sendPendingAppointmentEmailToCustomer(Appointment appointment) {
+        String customerEmail = appointment.getCustomer().getEmail();
+        String subject = "Your Appointment is Pending";
+        String message = "Dear " + appointment.getCustomer().getName() + ",\n\n" +
+                "Your appointment scheduled on " + appointment.getAppointmentDate() + " is currently pending approval.\n" +
+                "We will notify you once it has been approved.\n\n" +
+                "Thank you,\n" +
+                "Your Company Name";
+
+        emailService.sendEmail(customerEmail, subject, message);
+    }
+
 
     public List<AppointmentDto> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
@@ -216,6 +228,7 @@ public class AppointmentService {
         validateAppointment(appointment);
         appointment.setApproved(false);
         Appointment savedAppointment = appointmentRepository.save(appointment);
+        sendPendingAppointmentEmailToCustomer(savedAppointment);
         sendApprovalRequestToExecutive(savedAppointment);
         return convertToDto(savedAppointment);
     }
