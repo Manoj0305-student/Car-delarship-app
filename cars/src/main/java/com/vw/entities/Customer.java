@@ -30,6 +30,7 @@ public class Customer {
 
     @NotEmpty
     @Column(unique = true)
+    @Pattern(regexp = "^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$")
     private String dlNumber;
 
     @OneToMany(mappedBy = "customer")

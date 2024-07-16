@@ -19,12 +19,12 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
-    // Create a new appointment
-    @PostMapping
-    public ResponseEntity<AppointmentDto> createAppointment(@RequestBody AppointmentDto appointmentDto) {
-        AppointmentDto createdAppointment = appointmentService.createAppointment(appointmentDto);
-        return ResponseEntity.ok(createdAppointment);
-    }
+//    // Create a new appointment
+//    @PostMapping
+//    public ResponseEntity<AppointmentDto> createAppointment(@RequestBody AppointmentDto appointmentDto) {
+//        AppointmentDto createdAppointment = appointmentService.createAppointment(appointmentDto);
+//        return ResponseEntity.ok(createdAppointment);
+//    }
 
     // Create a new test drive appointment
     @PostMapping("/test-drive")

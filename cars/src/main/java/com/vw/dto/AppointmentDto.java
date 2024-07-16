@@ -1,5 +1,6 @@
 package com.vw.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vw.entities.Customer;
 import lombok.Data;
 
@@ -16,5 +17,6 @@ public class AppointmentDto {
     private int executiveId;
     private int customerId;
     private boolean approved;
+    @JsonIgnore
     private CustomerDto customer;
 }
