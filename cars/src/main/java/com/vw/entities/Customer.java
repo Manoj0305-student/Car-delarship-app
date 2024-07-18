@@ -1,7 +1,6 @@
 package com.vw.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -24,6 +23,7 @@ public class Customer {
     @Email(message = "Enter valid email!",regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~\\.-]+@[a-zA-Z0-9.-]+$")
     @Column(unique = true)
     private String email;
+
     @Column(unique = true)
     @Pattern(regexp = "^\\d{2}-\\d{10}$")
     private String phone;

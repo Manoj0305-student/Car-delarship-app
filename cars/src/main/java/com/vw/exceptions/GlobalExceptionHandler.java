@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -78,16 +79,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> InvalidInputExceptionHandler(InvalidInputException ex) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NoHandlerFoundException ex) {
-        String message = "The requested resource could not be found. Here are some possibilities:\n" +
-                "- The URL might be incorrect.\n" +
-                "- You might be using the wrong HTTP method (e.g., GET instead of POST).\n" +
-                "- The controller method might not be mapped with the appropriate annotation (@GetMapping, @PostMapping, etc.).";
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, message);
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

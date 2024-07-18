@@ -57,9 +57,7 @@ public class CarController {
 			List<CarDto> list = carService.getCarByName(name);
 			logger.info(list.toString());
 			if(list.isEmpty()) {
-
 				throw new ListOfCarIsEmptyException("Data Not Found!!");
-
 			}
 			return ResponseEntity.ok(list);
 	}
@@ -82,7 +80,6 @@ public class CarController {
 		List<CarDto> list = carService.getCarBrand(brand);
 		if(list.isEmpty()) {
 			throw new ListOfCarIsEmptyException("Data not found!!");
-			
 		}
 		return ResponseEntity.ok(list);
 		

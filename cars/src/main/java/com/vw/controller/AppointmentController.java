@@ -2,7 +2,6 @@ package com.vw.controller;
 
 import com.vw.dto.AppointmentDto;
 import com.vw.exceptions.AppointmentException;
-import com.vw.exceptions.ListOfCarIsEmptyException;
 import com.vw.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

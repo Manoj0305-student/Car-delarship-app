@@ -269,7 +269,7 @@ public class AppointmentService {
         appointment.setAppointmentType(appointmentDto.getAppointmentType());
         Appointment updatedAppointment;
 
-        if (appointmentDto.isApproved()) {
+        if (appointmentDto.isApproved() && appointmentDto.getAppointmentType().equals("test-drive")) {
             appointment.setApproved(true);
             updatedAppointment = appointmentRepository.save(appointment);
             sendConfirmationEmailForCustomer(updatedAppointment);
@@ -298,9 +298,11 @@ public class AppointmentService {
     public void buyACar(int appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentException("Appointment not found with id: " + appointmentId));
+        if(!appointment.isApproved()){
+            throw new AppointmentException("Appointment status is not approved by the executive. Cannot buy car.");
+        }
         Car car = appointment.getCar();
         Customer customer = appointment.getCustomer();
-        carRepository.save(car);
 
         // Send confirmation email
         sendCarPurchaseConfirmationEmail(customer, car);
@@ -316,8 +318,9 @@ public class AppointmentService {
 
         validateAppointment(appointment);
 
-        // Save the appointment as pending approval
-        appointment.setApproved(false);
+        // Save the appointment as approval
+        appointment.setApproved(true);
+
 
         // Save the appointment in the repository
         Appointment savedAppointment = appointmentRepository.save(appointment);
