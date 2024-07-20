@@ -32,4 +32,8 @@ public class Executive {
     @OneToMany(mappedBy = "executive")
     @JsonManagedReference(value ="executiveCustomers")
     private List<Customer> customers = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
+    private UserInfo user;
 }

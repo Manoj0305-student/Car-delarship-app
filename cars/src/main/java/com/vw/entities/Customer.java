@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +43,10 @@ public class Customer {
     @JoinColumn(name = "executiveId")
     @JsonBackReference(value ="executiveCustomers")
     private Executive executive;
+
+    @OneToOne
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
+    private UserInfo user;
 
 //    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
 //    @JsonIgnore

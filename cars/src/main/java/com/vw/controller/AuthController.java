@@ -6,6 +6,7 @@ import com.vw.dto.JwtResponseDTO;
 import com.vw.dto.UserInfoDTO;
 import com.vw.entities.UserInfo;
 import com.vw.entities.UserRole;
+import com.vw.repo.UserRepository;
 import com.vw.service.JwtService;
 import com.vw.service.RolesService;
 import com.vw.service.UserService;
@@ -22,7 +23,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
@@ -40,6 +43,9 @@ public class AuthController {
 
     @Autowired
     private RolesService rolesService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Api for Authentication:
@@ -136,6 +142,14 @@ public class AuthController {
     @GetMapping("user/{id}")
     public UserInfo getUser(@PathVariable long id) {
         return userService.fetchUserbyId(id);
+    }
+
+    @DeleteMapping("users/{id}")
+    public ResponseEntity<Map<String,String>> deleteUser(@PathVariable long id){
+        userRepository.deleteById(id);
+        Map<String, String> jsonMap = new HashMap<>();
+        jsonMap.put("message", "Deleted id: "+id);
+        return ResponseEntity.ok(jsonMap);
     }
 
 }

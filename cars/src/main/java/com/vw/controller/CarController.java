@@ -5,7 +5,6 @@ import java.util.*;
 
 import com.vw.entities.Car;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vw.exceptions.IdNotFoundException;
 import com.vw.exceptions.ListOfCarIsEmptyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import com.vw.dto.ImageDto;
 
 import static java.lang.Integer.parseInt;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
 @RestController
 @RequestMapping(value="/")
 public class CarController {

@@ -9,4 +9,6 @@ import java.util.List;
 public interface CustomerRepo extends JpaRepository<Customer,Integer> {
 
     List<Customer> findByExecutive(Executive executive);
+    boolean existsByName(String name);
+    Customer findByName(String name);
 }
